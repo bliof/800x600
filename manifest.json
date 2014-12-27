@@ -7,7 +7,10 @@
 
     "permissions": [],
     "browser_action": {
-        "default_icon": "inactive.png",
+        "default_icon": {
+            "19": "images/inactive19.png",
+            "38": "images/inactive38.png"
+        },
         "default_title": "Swap Images"
     },
     "background": {
