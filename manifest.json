@@ -15,5 +15,12 @@
     },
     "background": {
         "scripts": ["toggle.js"]
-    }
+    },
+    "content_scripts": [
+        {
+            "matches": ["http://*/*", "https://*/*"],
+            "js": ["swap.js"],
+            "run_at": "document_end"
+        }
+    ]
 }
