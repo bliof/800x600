@@ -1,6 +1,24 @@
 function swapImage(img) {
+    var canvas = document.createElement('canvas');
+
+    canvas.width = img.naturalWidth;
+    canvas.height = img.naturalHeight;
+
+    var c = canvas.getContext("2d");
+
+    c.fillStyle = 'lightgrey';
+    c.fillRect(0, 0, canvas.width, canvas.height);
+
+    var fontSize = canvas.width * 0.15;
+
+    c.font = fontSize + 'px Monaco, monospace';
+    c.textAlign = 'center';
+    c.textBaseline = 'middle';
+    c.fillStyle = 'black';
+    c.fillText(canvas.width + ' x ' + canvas.height, canvas.width/2, canvas.height/2);
+
     var realSrc = img.src;
-    img.src = 'http://dummyimage.com/' + img.naturalWidth + 'x' + img.naturalHeight;
+    img.src = canvas.toDataURL();
     img.classList.add('_dummy_');
     img.dataset.realSrc = realSrc;
 }
