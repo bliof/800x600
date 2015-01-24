@@ -1,42 +1,54 @@
+var cache = {};
+
 function swapImage(img) {
-    var canvas = document.createElement('canvas');
+    var src = cache[img.naturalWidth + 'x' + img.naturalHeight];
 
-    canvas.width = img.naturalWidth;
-    canvas.height = img.naturalHeight;
+    if (!src) {
+        var canvas = document.createElement('canvas');
 
-    var c = canvas.getContext("2d");
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
 
-    c.fillStyle = 'lightgrey';
-    c.fillRect(0, 0, canvas.width, canvas.height);
+        var c = canvas.getContext("2d");
 
-    var fontSize = canvas.width * 0.15;
+        c.fillStyle = 'lightgrey';
+        c.fillRect(0, 0, canvas.width, canvas.height);
 
-    c.font = fontSize + 'px Monaco, monospace';
-    c.textAlign = 'center';
-    c.textBaseline = 'middle';
-    c.fillStyle = 'black';
-    c.fillText(canvas.width + ' x ' + canvas.height, canvas.width/2, canvas.height/2);
+        var fontSize = canvas.width * 0.15;
+
+        c.font = fontSize + 'px Monaco, monospace';
+        c.textAlign = 'center';
+        c.textBaseline = 'middle';
+        c.fillStyle = 'black';
+        c.fillText(canvas.width + ' x ' + canvas.height, canvas.width/2, canvas.height/2);
+
+        src = canvas.toDataURL();
+        cache[img.naturalWidth + 'x' + img.naturalHeight] = src;
+    }
 
     var realSrc = img.src;
-    img.src = canvas.toDataURL();
-    img.classList.add('_dummy_');
     img.dataset.realSrc = realSrc;
+    img.src = src;
+}
+
+function swapImageWhenLoaded(img) {
+    if (img.naturalWidth === 0) {
+        img.addEventListener('load', function imageSwapHandler() {
+            img.removeEventListener(img, imageSwapHandler);
+            if (img.naturalWidth !== 0) {
+                swapImage(img);
+            }
+        });
+    } else {
+        swapImage(img);
+    }
 }
 
 function swapChildImages(node) {
-    var images = node.querySelectorAll('img:not(._dummy_)');
+    var images = node.querySelectorAll('img:not([src^="data:image/png;"])');
 
     for (var i = 0; i < images.length; i++) {
-        var img = images[i];
-
-        if (img.naturalWidth === 0) {
-            img.addEventListener('load', function imageSwapHandler() {
-                swapImage(img);
-                img.removeEventListener(img, imageSwapHandler);
-            });
-        } else {
-            swapImage(img);
-        }
+        swapImageWhenLoaded(images[i]);
     }
 }
 
@@ -49,11 +61,15 @@ function startSwapping() {
                 var node = mutation.addedNodes[i];
 
                 if (node.querySelectorAll) {
-                    swapChildImages(node)
+                    swapChildImages(node);
                 }
             }
+
+            if (mutation.attributeName && mutation.target.tagName == 'IMG' && mutation.target.src.indexOf("data:image/png;")) {
+                swapImageWhenLoaded(mutation.target);
+            }
         });
-    }).observe(document, {childList: true, subtree: true});
+    }).observe(document, {childList: true, subtree: true, attributes: true, attributeFilter: ['src']});
 }
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
