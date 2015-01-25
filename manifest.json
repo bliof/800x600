@@ -2,8 +2,9 @@
     "manifest_version": 2,
 
     "name": "800x600",
-    "description": "Replaces images on the site with ones with sizes",
     "version": "0.2",
+    "description": "Replaces images on the site with ones with sizes",
+    "icons": {"128": "images/logo128.png"},
 
     "permissions": [],
     "browser_action": {
