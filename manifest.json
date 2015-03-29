@@ -3,7 +3,7 @@
 
     "name": "800x600",
     "version": "0.2",
-    "description": "Replaces images on the site with ones with sizes",
+    "description": "Monitors img tags and replaces their images with ones that show the dimensions of the originals.",
     "icons": {"128": "images/logo128.png"},
 
     "permissions": [],
