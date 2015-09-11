@@ -33,12 +33,15 @@ function swapImage(img) {
 
 function swapImageWhenLoaded(img) {
     if (img.naturalWidth === 0) {
-        img.addEventListener('load', function imageSwapHandler() {
-            img.removeEventListener(img, imageSwapHandler);
+        var imageSwapHandler = function(e) {
+            var img = e.target;
+            img.removeEventListener(e.type, arguments.callee);
             if (img.naturalWidth !== 0) {
                 swapImage(img);
             }
-        });
+        };
+
+        img.addEventListener('load', imageSwapHandler);
     } else {
         swapImage(img);
     }
