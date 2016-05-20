@@ -75,16 +75,20 @@ function startSwapping() {
     }).observe(document, {childList: true, subtree: true, attributes: true, attributeFilter: ['src']});
 }
 
-chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-    if (request.action == 'swap-images') {
-        startSwapping();
-    } else {
-        window.location.reload();
-    }
-});
+function handleBackgroundCommand(request) {
+    if (!request) { return; }
 
-chrome.runtime.sendMessage({action: 'init'}, function(response) {
-    if (response.action == 'swap-images') {
-        startSwapping();
+    switch(request.action) {
+        case 'swap-images':
+            startSwapping();
+            break;
+        case 'undo-swap-images':
+            window.location.reload();
+            break;
     }
-});
+}
+
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) { handleBackgroundCommand(request) });
+
+// Handle page reloads by checking if we have to swap the images in the current tab.
+chrome.runtime.sendMessage({action: 'init'}, function(response) { handleBackgroundCommand(response) });

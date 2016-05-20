@@ -44,12 +44,17 @@ chrome.browserAction.onClicked.addListener(function(tab) {
 });
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+    if (!request) { return; }
+
     var tab = sender.tab;
 
     if (request.action == 'init') {
         if (activeOnTabs[tab.id]) {
             changeIconTo(tab, 'active');
-            sendResponse({action: 'swap-images'})
+            sendResponse({action: 'swap-images'});
+            return;
         }
     }
+
+    sendResponse({action: 'none'});
 });
