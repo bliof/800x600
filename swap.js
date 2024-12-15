@@ -1,61 +1,61 @@
-var cache = {};
-
-function swapImage(img) {
-    var src = cache[img.naturalWidth + 'x' + img.naturalHeight];
-
-    if (!src) {
-        var canvas = document.createElement('canvas');
-
-        canvas.width = img.naturalWidth;
-        canvas.height = img.naturalHeight;
-
-        var c = canvas.getContext("2d");
-
-        c.fillStyle = 'lightgrey';
-        c.fillRect(0, 0, canvas.width, canvas.height);
-
-        var fontSize = canvas.width * 0.15;
-
-        c.font = fontSize + 'px Monaco, monospace';
-        c.textAlign = 'center';
-        c.textBaseline = 'middle';
-        c.fillStyle = 'black';
-        c.fillText(canvas.width + ' x ' + canvas.height, canvas.width/2, canvas.height/2);
-
-        src = canvas.toDataURL();
-        cache[img.naturalWidth + 'x' + img.naturalHeight] = src;
-    }
-
-    var realSrc = img.src;
-    img.dataset.realSrc = realSrc;
-    img.src = src;
-}
-
-function swapImageWhenLoaded(img) {
-    if (img.naturalWidth === 0) {
-        var imageSwapHandler = function(e) {
-            var img = e.target;
-            img.removeEventListener(e.type, arguments.callee);
-            if (img.naturalWidth !== 0) {
-                swapImage(img);
-            }
-        };
-
-        img.addEventListener('load', imageSwapHandler);
-    } else {
-        swapImage(img);
-    }
-}
-
-function swapChildImages(node) {
-    var images = node.querySelectorAll('img:not([src^="data:image/png;"])');
-
-    for (var i = 0; i < images.length; i++) {
-        swapImageWhenLoaded(images[i]);
-    }
-}
-
 function startSwapping() {
+    var cache = {};
+
+    function swapImage(img) {
+        var src = cache[img.naturalWidth + 'x' + img.naturalHeight];
+
+        if (!src) {
+            var canvas = document.createElement('canvas');
+
+            canvas.width = img.naturalWidth;
+            canvas.height = img.naturalHeight;
+
+            var c = canvas.getContext("2d");
+
+            c.fillStyle = 'lightgrey';
+            c.fillRect(0, 0, canvas.width, canvas.height);
+
+            var fontSize = canvas.width * 0.15;
+
+            c.font = fontSize + 'px Monaco, monospace';
+            c.textAlign = 'center';
+            c.textBaseline = 'middle';
+            c.fillStyle = 'black';
+            c.fillText(canvas.width + ' x ' + canvas.height, canvas.width/2, canvas.height/2);
+
+            src = canvas.toDataURL();
+            cache[img.naturalWidth + 'x' + img.naturalHeight] = src;
+        }
+
+        var realSrc = img.src;
+        img.dataset.realSrc = realSrc;
+        img.src = src;
+    }
+
+    function swapImageWhenLoaded(img) {
+        if (img.naturalWidth === 0) {
+            var imageSwapHandler = function(e) {
+                var img = e.target;
+                img.removeEventListener(e.type, arguments.callee);
+                if (img.naturalWidth !== 0) {
+                    swapImage(img);
+                }
+            };
+
+            img.addEventListener('load', imageSwapHandler);
+        } else {
+            swapImage(img);
+        }
+    }
+
+    function swapChildImages(node) {
+        var images = node.querySelectorAll('img:not([src^="data:image/png;"])');
+
+        for (var i = 0; i < images.length; i++) {
+            swapImageWhenLoaded(images[i]);
+        }
+    }
+
     swapChildImages(document);
 
     new MutationObserver(function(mutations) {
@@ -74,21 +74,3 @@ function startSwapping() {
         });
     }).observe(document, {childList: true, subtree: true, attributes: true, attributeFilter: ['src']});
 }
-
-function handleBackgroundCommand(request) {
-    if (!request) { return; }
-
-    switch(request.action) {
-        case 'swap-images':
-            startSwapping();
-            break;
-        case 'undo-swap-images':
-            window.location.reload();
-            break;
-    }
-}
-
-chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) { handleBackgroundCommand(request) });
-
-// Handle page reloads by checking if we have to swap the images in the current tab.
-chrome.runtime.sendMessage({action: 'init'}, function(response) { handleBackgroundCommand(response) });

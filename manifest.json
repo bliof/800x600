@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "800x600",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Monitors img tags and replaces their images with ones that show the dimensions of the originals.",
   "icons": {
     "128": "images/logo128.png"
@@ -10,18 +10,6 @@
   "background": {
     "service_worker": "service_worker.js"
   },
-  "content_scripts": [
-    {
-      "matches": [
-        "http://*/*",
-        "https://*/*"
-      ],
-      "js": [
-        "swap.js"
-      ],
-      "run_at": "document_end"
-    }
-  ],
   "action": {
     "default_icon": {
       "19": "images/inactive19.png",

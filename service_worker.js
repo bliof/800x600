@@ -1,6 +1,8 @@
+importScripts('swap.js');
+
 var activeOnTabs = {};
 
-function changeIconTo(tab, state) {
+function changeIconTo(tabId, state) {
     var icon = {};
 
     if (state == 'active') {
@@ -17,44 +19,50 @@ function changeIconTo(tab, state) {
 
     chrome.action.setIcon({
         path: icon,
-        tabId: tab.id
+        tabId: tabId
     });
 }
 
-function activateOnTab(tab) {
-    chrome.tabs.sendMessage(tab.id, {action: "swap-images"});
+function activateOnTab(tabId) {
+    changeIconTo(tabId, 'active');
+    activeOnTabs[tabId] = true;
 
-    changeIconTo(tab, 'active');
-    activeOnTabs[tab.id] = true;
+    chrome.scripting.executeScript({
+        target: { tabId: tabId },
+        function: startSwapping
+    }).catch((err) => {
+        /* When the host changes */
+        if (err.message.includes('Cannot access contents of the page')) {
+            changeIconTo(tabId, 'inactive');
+            delete activeOnTabs[tabId];
+        }
+    });
 }
 
-function deactivateOnTab(tab) {
-    chrome.tabs.sendMessage(tab.id, {action: "undo-swap-images"});
+function deactivateOnTab(tabId) {
+    changeIconTo(tabId, 'inactive');
+    delete activeOnTabs[tabId];
 
-    changeIconTo(tab, 'inactive');
-    delete activeOnTabs[tab.id];
+    chrome.scripting.executeScript({
+        target: { tabId: tabId },
+        function: () => window.location.reload()
+    });
 }
 
 chrome.action.onClicked.addListener(function(tab) {
     if (activeOnTabs[tab.id]) {
-        deactivateOnTab(tab);
+        deactivateOnTab(tab.id);
     } else {
-        activateOnTab(tab);
+        activateOnTab(tab.id);
     }
 });
 
-chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-    if (!request) { return; }
-
-    var tab = sender.tab;
-
-    if (request.action == 'init') {
-        if (activeOnTabs[tab.id]) {
-            changeIconTo(tab, 'active');
-            sendResponse({action: 'swap-images'});
-            return;
-        }
+chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
+    if (activeOnTabs[tabId] && changeInfo.status === "complete") {
+        activateOnTab(tabId);
     }
+});
 
-    sendResponse({action: 'none'});
+chrome.tabs.onRemoved.addListener((tabId) => {
+    delete activeOnTabs[tabId];
 });
