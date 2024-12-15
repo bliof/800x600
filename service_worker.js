@@ -15,7 +15,7 @@ function changeIconTo(tab, state) {
         };
     }
 
-    chrome.browserAction.setIcon({
+    chrome.action.setIcon({
         path: icon,
         tabId: tab.id
     });
@@ -35,7 +35,7 @@ function deactivateOnTab(tab) {
     delete activeOnTabs[tab.id];
 }
 
-chrome.browserAction.onClicked.addListener(function(tab) {
+chrome.action.onClicked.addListener(function(tab) {
     if (activeOnTabs[tab.id]) {
         deactivateOnTab(tab);
     } else {

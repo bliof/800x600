@@ -1,27 +1,33 @@
 {
-    "manifest_version": 2,
-
-    "name": "800x600",
-    "version": "0.3.1",
-    "description": "Monitors img tags and replaces their images with ones that show the dimensions of the originals.",
-    "icons": {"128": "images/logo128.png"},
-
-    "permissions": [],
-    "browser_action": {
-        "default_icon": {
-            "19": "images/inactive19.png",
-            "38": "images/inactive38.png"
-        },
-        "default_title": "Swap Images"
+  "manifest_version": 3,
+  "name": "800x600",
+  "version": "0.4.0",
+  "description": "Monitors img tags and replaces their images with ones that show the dimensions of the originals.",
+  "icons": {
+    "128": "images/logo128.png"
+  },
+  "permissions": ["scripting", "activeTab"],
+  "background": {
+    "service_worker": "service_worker.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ],
+      "js": [
+        "swap.js"
+      ],
+      "run_at": "document_end"
+    }
+  ],
+  "action": {
+    "default_icon": {
+      "19": "images/inactive19.png",
+      "38": "images/inactive38.png"
     },
-    "background": {
-        "scripts": ["toggle.js"]
-    },
-    "content_scripts": [
-        {
-            "matches": ["http://*/*", "https://*/*"],
-            "js": ["swap.js"],
-            "run_at": "document_end"
-        }
-    ]
+    "default_title": "Swap Images"
+  },
+  "content_security_policy": {}
 }
