@@ -10,22 +10,35 @@
     <h1>Extension Test Page</h1>
 
     <!-- Normal Image -->
-    <img id="static-image" src="../images/logo128.png" alt="Static Logo" />
+    <img
+      id="static-image"
+      src="images/img_orange_flowers.jpg"
+      alt="Orange Flowers"
+    />
 
     <!-- Image with srcset -->
     <img
       id="srcset-image"
-      src="../images/logo128.png"
-      srcset="../images/logo128.png 128w, ../images/active.png 256w"
-      sizes="128px"
-      alt="Srcset Logo"
+      src="images/img_orange_flowers.jpg"
+      srcset="
+        images/img_orange_flowers.jpg 100w,
+        images/img_white_flower.jpg   214w,
+        images/img_pink_flowers.jpg   460w
+      "
+      sizes="(min-width: 460px) 460px, 100px"
+      alt="Responsive Flowers"
     />
 
     <!-- Picture element with sources -->
     <picture id="picture-container">
-      <source srcset="../images/active.png" media="(min-width: 600px)" />
-      <source srcset="../images/inactive.png" media="(min-width: 300px)" />
-      <img id="picture-image" src="../images/logo128.png" alt="Picture Logo" />
+      <source media="(min-width: 650px)" srcset="images/img_pink_flowers.jpg" />
+      <source media="(min-width: 465px)" srcset="images/img_white_flower.jpg" />
+      <img
+        id="picture-image"
+        src="images/img_orange_flowers.jpg"
+        alt="Flowers"
+        style="width: auto"
+      />
     </picture>
 
     <!-- Container for dynamic image -->
@@ -39,8 +52,8 @@
       setTimeout(() => {
         const img = document.createElement("img");
         img.id = "dynamic-image";
-        img.src = "../images/logo128.png";
-        img.alt = "Dynamic Logo";
+        img.src = "images/img_white_flower.jpg";
+        img.alt = "Dynamic Flower";
         document.getElementById("dynamic-container").appendChild(img);
       }, 1000);
     </script>

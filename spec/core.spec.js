@@ -52,7 +52,7 @@ test.describe("Image Swap Extension", () => {
     // Verify dataset.realSrc matches original
     // Note: file:// URLs might be tricky with exact matching due to encoding, but let's check end
     const realSrc = await staticImage.getAttribute("data-real-src");
-    expect(realSrc).toContain("images/logo128.png");
+    expect(realSrc).toContain("img_orange_flowers.jpg");
   });
 
   test("replaces dynamically added images", async ({ page }) => {
@@ -130,7 +130,7 @@ test.describe("Image Swap Extension", () => {
 
     // Get original srcset before swap
     const originalSrcset = await srcsetImage.getAttribute("srcset");
-    expect(originalSrcset).toContain("128w");
+    expect(originalSrcset).toContain("100w");
 
     // Inject and start swapping
     await injectSwapScript(page);
@@ -143,12 +143,12 @@ test.describe("Image Swap Extension", () => {
 
     // Verify original srcset is preserved in data attribute
     const realSrcset = await srcsetImage.getAttribute("data-real-srcset");
-    expect(realSrcset).toContain("128w");
-    expect(realSrcset).toContain("256w");
+    expect(realSrcset).toContain("100w");
+    expect(realSrcset).toContain("460w");
 
     // Verify realSrc is also preserved
     const realSrc = await srcsetImage.getAttribute("data-real-src");
-    expect(realSrc).toContain("logo128.png");
+    expect(realSrc).toContain("img_orange_flowers.jpg");
   });
 
   test("handles dynamically added images with srcset", async ({ page }) => {
@@ -161,8 +161,9 @@ test.describe("Image Swap Extension", () => {
     await page.evaluate(() => {
       const img = document.createElement("img");
       img.id = "dynamic-srcset-image";
-      img.src = "../images/logo128.png";
-      img.srcset = "../images/logo128.png 1x, ../images/active.png 2x";
+      img.src = "images/img_orange_flowers.jpg";
+      img.srcset =
+        "images/img_orange_flowers.jpg 1x, images/img_pink_flowers.jpg 2x";
       img.alt = "Dynamic Srcset";
       document.getElementById("dynamic-container").appendChild(img);
     });
@@ -210,7 +211,7 @@ test.describe("Image Swap Extension", () => {
 
     // Verify realSrc is preserved on the img
     const realSrc = await pictureImage.getAttribute("data-real-src");
-    expect(realSrc).toContain("logo128.png");
+    expect(realSrc).toContain("img_orange_flowers.jpg");
 
     // Verify source srcsets are cleared
     for (let i = 0; i < sourceCount; i++) {
