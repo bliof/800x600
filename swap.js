@@ -36,7 +36,7 @@ function startSwapping() {
         if (img.naturalWidth === 0) {
             var imageSwapHandler = function(e) {
                 var img = e.target;
-                img.removeEventListener(e.type, arguments.callee);
+                img.removeEventListener(e.type, imageSwapHandler);
                 if (img.naturalWidth !== 0) {
                     swapImage(img);
                 }
@@ -62,6 +62,12 @@ function startSwapping() {
         mutations.forEach(function(mutation) {
             for (var i = 0; i < mutation.addedNodes.length; i++) {
                 var node = mutation.addedNodes[i];
+
+                if (node.tagName === 'IMG') {
+                    if (node.src.indexOf("data:image/png;") !== 0) {
+                        swapImageWhenLoaded(node);
+                    }
+                }
 
                 if (node.querySelectorAll) {
                     swapChildImages(node);
