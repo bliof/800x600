@@ -21,30 +21,56 @@ function startSwapping() {
             c.textAlign = 'center';
             c.textBaseline = 'middle';
             c.fillStyle = 'black';
-            c.fillText(canvas.width + ' x ' + canvas.height, canvas.width/2, canvas.height/2);
+            c.fillText(canvas.width + ' x ' + canvas.height, canvas.width / 2, canvas.height / 2);
 
             src = canvas.toDataURL();
             cache[img.naturalWidth + 'x' + img.naturalHeight] = src;
         }
 
-        var realSrc = img.src;
-        img.dataset.realSrc = realSrc;
+        // Store original sources and clear srcsets
+        clearSources(img);
+
         img.src = src;
     }
 
     function swapImageWhenLoaded(img) {
         if (img.naturalWidth === 0) {
-            var imageSwapHandler = function(e) {
+            var imageSwapHandler = function (e) {
                 var img = e.target;
-                img.removeEventListener(e.type, imageSwapHandler);
+                img.removeEventListener('load', imageSwapHandler);
+                img.removeEventListener('error', imageSwapHandler);
                 if (img.naturalWidth !== 0) {
                     swapImage(img);
                 }
             };
 
             img.addEventListener('load', imageSwapHandler);
+            img.addEventListener('error', imageSwapHandler);
         } else {
             swapImage(img);
+        }
+    }
+
+    function clearSources(img) {
+        // Store original src
+        img.dataset.realSrc = img.src;
+        img.src = '';
+
+        // Store and clear img srcset
+        if (img.srcset) {
+            img.dataset.realSrcset = img.srcset;
+            img.srcset = '';
+        }
+
+        // Handle <source> elements inside <picture>
+        var picture = img.closest('picture');
+        if (picture) {
+            var sources = picture.querySelectorAll('source[srcset]:not([data-real-srcset])');
+            for (var i = 0; i < sources.length; i++) {
+                var source = sources[i];
+                source.dataset.realSrcset = source.srcset;
+                source.srcset = '';
+            }
         }
     }
 
@@ -58,8 +84,8 @@ function startSwapping() {
 
     swapChildImages(document);
 
-    new MutationObserver(function(mutations) {
-        mutations.forEach(function(mutation) {
+    new MutationObserver(function (mutations) {
+        mutations.forEach(function (mutation) {
             for (var i = 0; i < mutation.addedNodes.length; i++) {
                 var node = mutation.addedNodes[i];
 
@@ -74,9 +100,9 @@ function startSwapping() {
                 }
             }
 
-            if (mutation.attributeName && mutation.target.tagName == 'IMG' && mutation.target.src.indexOf("data:image/png;")) {
+            if (mutation.attributeName && mutation.target.tagName === 'IMG' && mutation.target.src.indexOf("data:image/png;") !== 0) {
                 swapImageWhenLoaded(mutation.target);
             }
         });
-    }).observe(document, {childList: true, subtree: true, attributes: true, attributeFilter: ['src']});
+    }).observe(document, { childList: true, subtree: true, attributes: true, attributeFilter: ['src', 'srcset'] });
 }

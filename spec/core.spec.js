@@ -110,4 +110,99 @@ test.describe('Image Swap Extension', () => {
         expect(newWidth).toBe(naturalWidth);
         expect(newHeight).toBe(naturalHeight);
     });
+
+    test('replaces images with srcset and preserves original srcset', async ({ page }) => {
+        await page.goto(`file://${path.join(__dirname, 'test.html')}`);
+
+        // Wait for srcset image to load
+        const srcsetImage = page.locator('#srcset-image');
+        await expect(srcsetImage).toBeVisible();
+
+        // Get original srcset before swap
+        const originalSrcset = await srcsetImage.getAttribute('srcset');
+        expect(originalSrcset).toContain('128w');
+
+        // Inject and start swapping
+        await injectSwapScript(page);
+
+        // Verify the src has changed to a data URL
+        await expect(srcsetImage).toHaveAttribute('src', /^data:image\/png;base64/);
+
+        // Verify srcset is cleared (to prevent browser from overriding placeholder)
+        await expect(srcsetImage).toHaveAttribute('srcset', '');
+
+        // Verify original srcset is preserved in data attribute
+        const realSrcset = await srcsetImage.getAttribute('data-real-srcset');
+        expect(realSrcset).toContain('128w');
+        expect(realSrcset).toContain('256w');
+
+        // Verify realSrc is also preserved
+        const realSrc = await srcsetImage.getAttribute('data-real-src');
+        expect(realSrc).toContain('logo128.png');
+    });
+
+    test('handles dynamically added images with srcset', async ({ page }) => {
+        await page.goto(`file://${path.join(__dirname, 'test.html')}`);
+
+        // Inject and start swapping
+        await injectSwapScript(page);
+
+        // Dynamically add an image with srcset
+        await page.evaluate(() => {
+            const img = document.createElement('img');
+            img.id = 'dynamic-srcset-image';
+            img.src = '../images/logo128.png';
+            img.srcset = '../images/logo128.png 1x, ../images/active.png 2x';
+            img.alt = 'Dynamic Srcset';
+            document.getElementById('dynamic-container').appendChild(img);
+        });
+
+        // Wait for dynamic srcset image to appear and be processed
+        const dynamicSrcsetImage = page.locator('#dynamic-srcset-image');
+        await expect(dynamicSrcsetImage).toBeVisible({ timeout: 5000 });
+
+        // Verify it gets swapped
+        await expect(dynamicSrcsetImage).toHaveAttribute('src', /^data:image\/png;base64/);
+
+        // Verify srcset is cleared
+        await expect(dynamicSrcsetImage).toHaveAttribute('srcset', '');
+
+        // Verify realSrcset is preserved
+        const realSrcset = await dynamicSrcsetImage.getAttribute('data-real-srcset');
+        expect(realSrcset).toContain('1x');
+        expect(realSrcset).toContain('2x');
+    });
+
+    test('handles picture elements with source srcsets', async ({ page }) => {
+        await page.goto(`file://${path.join(__dirname, 'test.html')}`);
+
+        // Wait for picture image to load
+        const pictureImage = page.locator('#picture-image');
+        await expect(pictureImage).toBeVisible();
+
+        // Get original source srcsets before swap
+        const sources = page.locator('#picture-container source');
+        const sourceCount = await sources.count();
+        expect(sourceCount).toBe(2);
+
+        // Inject and start swapping
+        await injectSwapScript(page);
+
+        // Verify the img src has changed to a data URL
+        await expect(pictureImage).toHaveAttribute('src', /^data:image\/png;base64/);
+
+        // Verify realSrc is preserved on the img
+        const realSrc = await pictureImage.getAttribute('data-real-src');
+        expect(realSrc).toContain('logo128.png');
+
+        // Verify source srcsets are cleared
+        for (let i = 0; i < sourceCount; i++) {
+            const source = sources.nth(i);
+            await expect(source).toHaveAttribute('srcset', '');
+
+            // Verify original srcset is preserved in data attribute
+            const realSrcset = await source.getAttribute('data-real-srcset');
+            expect(realSrcset).toBeTruthy();
+        }
+    });
 });

@@ -5,6 +5,7 @@
   "main": "service_worker.js",
   "scripts": {
     "test": "playwright test spec/core.spec.js",
+    "preview": "npx -y serve . -l 3000",
     "build": "zip -r extension.zip . -x 'screenshots/*' -x '*.git*' -x 'node_modules/*' -x 'spec/*' -x 'package*.json' -x 'playwright-report/*' -x 'test-results/*' -x '*.DS_Store' -x '.gitignore'"
   },
   "repository": {
