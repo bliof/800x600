@@ -1,45 +1,48 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Extension Test</title>
-</head>
+  </head>
 
-<body>
+  <body>
     <h1>Extension Test Page</h1>
 
     <!-- Normal Image -->
-    <img id="static-image" src="../images/logo128.png" alt="Static Logo">
+    <img id="static-image" src="../images/logo128.png" alt="Static Logo" />
 
     <!-- Image with srcset -->
-    <img id="srcset-image" src="../images/logo128.png" srcset="../images/logo128.png 128w, ../images/active.png 256w"
-        sizes="128px" alt="Srcset Logo">
+    <img
+      id="srcset-image"
+      src="../images/logo128.png"
+      srcset="../images/logo128.png 128w, ../images/active.png 256w"
+      sizes="128px"
+      alt="Srcset Logo"
+    />
 
     <!-- Picture element with sources -->
     <picture id="picture-container">
-        <source srcset="../images/active.png" media="(min-width: 600px)">
-        <source srcset="../images/inactive.png" media="(min-width: 300px)">
-        <img id="picture-image" src="../images/logo128.png" alt="Picture Logo">
+      <source srcset="../images/active.png" media="(min-width: 600px)" />
+      <source srcset="../images/inactive.png" media="(min-width: 300px)" />
+      <img id="picture-image" src="../images/logo128.png" alt="Picture Logo" />
     </picture>
 
     <!-- Container for dynamic image -->
     <div id="dynamic-container"></div>
 
     <!-- 404 Image (should not be replaced) -->
-    <img id="missing-image" src="non-existent.png" alt="Missing">
+    <img id="missing-image" src="non-existent.png" alt="Missing" />
 
     <script>
-        // Add image dynamically after 1 second
-        setTimeout(() => {
-            const img = document.createElement('img');
-            img.id = 'dynamic-image';
-            img.src = '../images/logo128.png';
-            img.alt = 'Dynamic Logo';
-            document.getElementById('dynamic-container').appendChild(img);
-        }, 1000);
+      // Add image dynamically after 1 second
+      setTimeout(() => {
+        const img = document.createElement("img");
+        img.id = "dynamic-image";
+        img.src = "../images/logo128.png";
+        img.alt = "Dynamic Logo";
+        document.getElementById("dynamic-container").appendChild(img);
+      }, 1000);
     </script>
-</body>
-
+  </body>
 </html>
