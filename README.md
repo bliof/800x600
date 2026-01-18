@@ -9,3 +9,19 @@ Chrome extension that monitors img tags on the page and replaces their images wi
   - renders the replacement image locally
   - works per tab
   - replaces images when they are loaded, so if the server returns 404, the image won't be replaced and you could see the problem
+
+## Running Tests
+
+To run the automated tests, execute:
+
+```bash
+npm test
+```
+
+## Building the Extension
+
+To build the extension for distribution (creates `extension.zip`), execute:
+
+```bash
+npm run build
+```
