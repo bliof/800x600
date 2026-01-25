@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "800x600",
-  "version": "0.5.0",
-  "description": "Monitors img tags and replaces their images with ones that show the dimensions of the originals.",
+  "version": "0.6.0",
+  "description": "Monitors img tags or svg image tags and replaces their images with ones that show the dimensions of the originals.",
   "icons": {
     "128": "images/logo128.png"
   },

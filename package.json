@@ -1,10 +1,10 @@
 {
   "name": "app",
-  "version": "1.0.0",
+  "version": "0.6.0",
   "description": "Chrome extension that monitors img tags on the page and replaces their images with ones that show the dimensions of the originals.",
   "main": "service_worker.js",
   "scripts": {
-    "test": "playwright test spec/core.spec.js",
+    "test": "playwright test spec/*.spec.js",
     "preview": "npx -y serve . -l 3000",
     "format": "prettier --write '**/*.{js,html,json,css}'",
     "build": "./bin/build.sh"
